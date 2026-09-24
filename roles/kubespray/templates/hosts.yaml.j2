@@ -1,0 +1,31 @@
+all:
+  hosts:
+{% for h in groups['k8s_cluster'] %}
+    {{ h }}:
+      ansible_user: {{ hostvars[h].ansible_user | default("root") }}
+      ansible_host: {{ hostvars[h].ansible_host }}
+      ip: {{ hostvars[h].ip }}
+      access_ip: {{ hostvars[h].access_ip }}
+{% endfor %}
+  children:
+    kube_control_plane:
+      hosts:
+{% for h in groups['kube_control_plane'] %}
+        {{ h }}:
+{% endfor %}
+    kube_node:
+      hosts:
+{% for h in groups['kube_node'] %}
+        {{ h }}:
+{% endfor %}
+    etcd:
+      hosts:
+{% for h in groups['etcd'] %}
+        {{ h }}:
+{% endfor %}
+    k8s_cluster:
+      children:
+        kube_control_plane:
+        kube_node:
+    calico_rr:
+      hosts: {}

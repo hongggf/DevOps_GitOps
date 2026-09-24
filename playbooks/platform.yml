@@ -1,0 +1,18 @@
+- name: Install Helm on control plane
+  hosts: kube_control_plane[0]
+  vars_files:
+    - ../inventory/production/group_vars/vault.yml
+  become: true
+  roles:
+    - helm
+
+- name: Install Kubernetes platform
+  hosts: kube_control_plane[0]
+  vars_files:
+    - ../inventory/production/group_vars/vault.yml
+  become: true
+  roles:
+    - traefik
+    - cert_manager
+    - headlamp
+    - argocd

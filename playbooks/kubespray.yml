@@ -1,0 +1,6 @@
+- name: Provision Kubernetes using Kubespray
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  roles:
+    - kubespray

@@ -1,0 +1,55 @@
+- name: Install git and Python requirements on control node
+  ansible.builtin.package:
+    name:
+      - git
+      - python3
+      - python3-pip
+      - python3-venv
+    state: present
+  delegate_to: localhost
+  become: true
+
+- name: Clone Kubespray
+  ansible.builtin.git:
+    repo: https://github.com/kubernetes-sigs/kubespray.git
+    dest: "{{ kubespray_dir }}"
+    version: "{{ kubespray_version }}"
+    depth: 1
+  delegate_to: localhost
+
+- name: Install Kubespray Python requirements
+  ansible.builtin.pip:
+    requirements: "{{ kubespray_dir }}/requirements.txt"
+    extra_args: "--user --break-system-packages"
+  delegate_to: localhost
+
+- name: Create Kubespray inventory directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ kubespray_dir }}/inventory/{{ kubespray_inventory_name }}"
+    - "{{ kubespray_dir }}/inventory/{{ kubespray_inventory_name }}/group_vars/k8s_cluster"
+  delegate_to: localhost
+
+- name: Render Kubespray inventory
+  ansible.builtin.template:
+    src: hosts.yaml.j2
+    dest: "{{ kubespray_dir }}/inventory/{{ kubespray_inventory_name }}/hosts.yaml"
+    mode: "0644"
+  delegate_to: localhost
+
+- name: Render Kubespray cluster variables
+  ansible.builtin.template:
+    src: cluster.yml.j2
+    dest: "{{ kubespray_dir }}/inventory/{{ kubespray_inventory_name }}/group_vars/k8s_cluster/k8s-cluster.yml"
+    mode: "0644"
+  delegate_to: localhost
+
+- name: Run Kubespray cluster.yml
+  ansible.builtin.command:
+    cmd: ansible-playbook -i inventory/{{ kubespray_inventory_name }}/hosts.yaml --become --become-user=root cluster.yml
+    chdir: "{{ kubespray_dir }}"
+  delegate_to: localhost
+  environment:
+    ANSIBLE_HOST_KEY_CHECKING: "False"

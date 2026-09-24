@@ -1,0 +1,9 @@
+---
+kube_network_plugin: {{ kube_network_plugin }}
+container_manager: {{ container_manager }}
+kubernetes_version: {{ kubernetes_version }}
+
+# ETCD cross-region latency tolerance
+etcd_heartbeat_interval: {{ etcd_heartbeat_interval | default(500) }}
+etcd_election_timeout: {{ etcd_election_timeout | default(5000) }}
+

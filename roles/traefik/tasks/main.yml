@@ -1,0 +1,24 @@
+- name: Add Traefik Helm repository
+  kubernetes.core.helm_repository:
+    name: traefik
+    repo_url: https://traefik.github.io/charts
+
+- name: Install Traefik
+  kubernetes.core.helm:
+    name: traefik
+    chart_ref: traefik/traefik
+    chart_version: "25.0.0"
+    release_namespace: traefik
+    create_namespace: true
+    values:
+      service:
+        type: "NodePort"
+      ports:
+        web:
+          hostPort: 80
+          redirectTo:
+            port: websecure
+        websecure:
+          hostPort: 443
+          tls:
+            enabled: true

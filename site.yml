@@ -1,0 +1,8 @@
+- name: Prepare Kubernetes nodes
+  import_playbook: playbooks/prepare.yml
+
+- name: Provision Kubernetes with Kubespray
+  import_playbook: playbooks/kubespray.yml
+
+- name: Install platform components
+  import_playbook: playbooks/platform.yml

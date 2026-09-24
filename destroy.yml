@@ -1,0 +1,24 @@
+- name: Remove application and platform components
+  hosts: kube_control_plane[0]
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Remove GitOps application
+      kubernetes.core.k8s:
+        state: absent
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        name: reactjs
+        namespace: argocd
+
+    - name: Remove namespaces
+      kubernetes.core.k8s:
+        state: absent
+        api_version: v1
+        kind: Namespace
+        name: "{{ item }}"
+      loop:
+        - react-app
+        - headlamp
+        - argocd
+        - cert-manager

@@ -1,0 +1,44 @@
+- name: Install required packages
+  ansible.builtin.apt:
+    name:
+      - curl
+      - git
+      - python3
+      - python3-pip
+      - python3-venv
+      - apt-transport-https
+      - ca-certificates
+    state: present
+    update_cache: true
+
+- name: Load overlay module
+  community.general.modprobe:
+    name: overlay
+    state: present
+
+- name: Load br_netfilter module
+  community.general.modprobe:
+    name: br_netfilter
+    state: present
+
+- name: Configure Kubernetes sysctl
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+  loop:
+    - { name: net.bridge.bridge-nf-call-iptables, value: "1" }
+    - { name: net.bridge.bridge-nf-call-ip6tables, value: "1" }
+    - { name: net.ipv4.ip_forward, value: "1" }
+
+- name: Disable swap immediately
+  ansible.builtin.command: swapoff -a
+  when: ansible_swaptotal_mb | int > 0
+  changed_when: true
+
+- name: Disable swap in fstab
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^(\s*[^#]\S+\s+\S+\s+swap\s+\S+.*)$'
+    replace: '# \1'

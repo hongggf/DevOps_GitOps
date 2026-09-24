@@ -1,0 +1,32 @@
+kubespray_version: "v2.29.0"
+kubespray_dir: "{{ lookup('env', 'HOME') }}/kubespray"
+kubespray_inventory_name: "project-two"
+
+kubernetes_version: "1.32"
+
+container_manager: "containerd"
+kube_network_plugin: "calico"
+
+base_domain: "limhong.xyz"
+reactjs_domain: "reactjs.{{ base_domain }}"
+argocd_domain: "argocd.{{ base_domain }}"
+headlamp_domain: "headlamp.{{ base_domain }}"
+
+helm_version: "v3.17.3"
+
+letsencrypt_email: "kimlimhong2598@gmail.com"
+letsencrypt_server: "https://acme-v02.api.letsencrypt.org/directory"
+
+react_namespace: react-app
+react_image_repository: "docker.io/hong16/jenkins-g12-reactjs"
+
+gitops_repo_url: "https://github.com/hongggf/reactjs-gitops.git"
+gitops_repo_revision: main
+gitops_repo_path: k8s
+
+traefik_service_type: NodePort
+
+# ETCD cross-region latency tolerance
+etcd_heartbeat_interval: 500
+etcd_election_timeout: 5000
+

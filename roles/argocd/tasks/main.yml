@@ -1,0 +1,35 @@
+- name: Add ArgoCD Helm repository
+  kubernetes.core.helm_repository:
+    name: argo
+    repo_url: https://argoproj.github.io/argo-helm
+
+- name: Install ArgoCD
+  kubernetes.core.helm:
+    name: argocd
+    chart_ref: argo/argo-cd
+    release_namespace: argocd
+    create_namespace: true
+    values:
+      configs:
+        secret:
+          argocdServerAdminPassword: "{{ vault_argocd_admin_password | password_hash('bcrypt') }}"
+      server:
+        extraArgs:
+          - --insecure
+
+- name: Create ArgoCD ingress
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'ingress.yml.j2') | from_yaml }}"
+
+- name: Create React namespace
+  kubernetes.core.k8s:
+    state: present
+    api_version: v1
+    kind: Namespace
+    name: "{{ react_namespace }}"
+
+- name: Create ArgoCD Application
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'application.yml.j2') | from_yaml }}"
